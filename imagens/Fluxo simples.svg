@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 680" width="100%" height="100%" style="background:#ffffff; font-family:'Segoe UI', Arial, sans-serif;">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#2563eb"/>
+    </marker>
+    <marker id="arrow-green" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#16a34a"/>
+    </marker>
+    <filter id="card-shadow" x="-5%" y="-5%" width="110%" height="115%">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#000000" flood-opacity="0.08"/>
+    </filter>
+  </defs>
+
+  <!-- Cabeçalho -->
+  <text x="450" y="45" text-anchor="middle" fill="#0f172a" font-size="22" font-weight="700">Como Funciona o Relógio de Lamport?</text>
+  <text x="450" y="70" text-anchor="middle" fill="#64748b" font-size="14">Uma analogia visual da causa, efeito e salto no tempo</text>
+
+  <!-- Linhas do Tempo Verticais -->
+  <line x1="180" y1="140" x2="180" y2="620" stroke="#cbd5e1" stroke-width="3" stroke-dasharray="6 6"/>
+  <line x1="450" y1="140" x2="450" y2="620" stroke="#cbd5e1" stroke-width="3" stroke-dasharray="6 6"/>
+  <line x1="720" y1="140" x2="720" y2="620" stroke="#cbd5e1" stroke-width="3" stroke-dasharray="6 6"/>
+
+  <!-- Títulos dos Processos -->
+  <!-- Processo P1 -->
+  <g filter="url(#card-shadow)">
+    <rect x="100" y="95" width="160" height="55" rx="8" fill="#eff6ff" stroke="#3b82f6" stroke-width="2"/>
+    <text x="180" y="122" text-anchor="middle" fill="#1d4ed8" font-size="16" font-weight="bold">Processo 1 (P1)</text>
+    <text x="180" y="139" text-anchor="middle" fill="#60a5fa" font-size="12">Começa em L1 = 0</text>
+  </g>
+
+  <!-- Processo P2 -->
+  <g filter="url(#card-shadow)">
+    <rect x="370" y="95" width="160" height="55" rx="8" fill="#f8fafc" stroke="#94a3b8" stroke-width="2"/>
+    <text x="450" y="122" text-anchor="middle" fill="#334155" font-size="16" font-weight="bold">Processo 2 (P2)</text>
+    <text x="450" y="139" text-anchor="middle" fill="#94a3b8" font-size="12">Começa em L2 = 0</text>
+  </g>
+
+  <!-- Processo P3 -->
+  <g filter="url(#card-shadow)">
+    <rect x="640" y="95" width="160" height="55" rx="8" fill="#eff6ff" stroke="#3b82f6" stroke-width="2"/>
+    <text x="720" y="122" text-anchor="middle" fill="#1d4ed8" font-size="16" font-weight="bold">Processo 3 (P3)</text>
+    <text x="720" y="139" text-anchor="middle" fill="#60a5fa" font-size="12">Começa em L3 = 0</text>
+  </g>
+
+  <!-- FASE 1: P1 e P3 conversando intensamente -->
+  <!-- Mensagem P1 -> P3 -->
+  <circle cx="180" cy="180" r="7" fill="#3b82f6"/>
+  <text x="165" y="185" text-anchor="end" fill="#1d4ed8" font-size="12" font-weight="bold">L1 = 1</text>
+  
+  <line x1="180" y1="180" x2="710" y2="230" stroke="#2563eb" stroke-width="2" marker-end="url(#arrow)"/>
+  
+  <circle cx="720" cy="230" r="7" fill="#3b82f6"/>
+  <text x="735" y="235" text-anchor="start" fill="#1d4ed8" font-size="12" font-weight="bold">L3 = 2</text>
+
+  <!-- Mensagem P3 -> P1 -->
+  <circle cx="720" cy="270" r="7" fill="#3b82f6"/>
+  <text x="735" y="275" text-anchor="start" fill="#1d4ed8" font-size="12" font-weight="bold">L3 = 3</text>
+  
+  <line x1="720" y1="270" x2="190" y2="320" stroke="#2563eb" stroke-width="2" marker-end="url(#arrow)"/>
+  
+  <circle cx="180" cy="320" r="7" fill="#3b82f6"/>
+  <text x="165" y="325" text-anchor="end" fill="#1d4ed8" font-size="12" font-weight="bold">L1 = 4</text>
+
+  <!-- P2 ESTÁTICO (Dormindo no meio) -->
+  <rect x="385" y="220" width="130" height="70" rx="6" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="450" y="245" text-anchor="middle" fill="#64748b" font-size="12" font-weight="bold">P2 está isolado</text>
+  <text x="450" y="263" text-anchor="middle" fill="#dc2626" font-size="14" font-weight="bold">L2 = 0</text>
+  <text x="450" y="278" text-anchor="middle" fill="#94a3b8" font-size="11">(não fala com ninguém)</text>
+
+  <!-- Resumo da conversa de 10 mensagens -->
+  <rect x="300" y="350" width="300" height="35" rx="17" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5"/>
+  <text x="450" y="372" text-anchor="middle" fill="#64748b" font-size="12">... P1 e P3 trocam mensagens até o relógio chegar em 10 ...</text>
+
+  <!-- P1 atinge 10 -->
+  <circle cx="180" cy="420" r="9" fill="#1d4ed8"/>
+  <rect x="75" y="405" width="90" height="30" rx="4" fill="#dbeafe"/>
+  <text x="120" y="425" text-anchor="middle" fill="#1e40af" font-size="13" font-weight="bold">L1 = 10</text>
+
+  <!-- FASE 2: P1 ENVIA UMA CARTA PARA P2 -->
+  <line x1="180" y1="420" x2="440" y2="490" stroke="#16a34a" stroke-width="3" marker-end="url(#arrow-green)"/>
+  
+  <!-- Envelope/Card da Mensagem -->
+  <rect x="235" y="435" width="160" height="36" rx="6" fill="#f0fdf4" stroke="#16a34a" stroke-width="1.5"/>
+  <text x="315" y="452" text-anchor="middle" fill="#15803d" font-size="11" font-weight="bold">Mensagem de P1 para P2</text>
+  <text x="315" y="465" text-anchor="middle" fill="#16a34a" font-size="10">Carimbo: "Meu tempo é 10"</text>
+
+  <!-- FASE 3: O SALTO DE P2 -->
+  <circle cx="450" cy="500" r="10" fill="#16a34a"/>
+  
+  <!-- Balão explicativo do P2 -->
+  <g filter="url(#card-shadow)">
+    <rect x="340" y="525" width="220" height="75" rx="8" fill="#ffffff" stroke="#16a34a" stroke-width="2"/>
+    <text x="450" y="546" text-anchor="middle" fill="#16a34a" font-size="13" font-weight="bold">P2 acorda e salta no tempo!</text>
+    <text x="450" y="565" text-anchor="middle" fill="#475569" font-size="11">Estava em 0. Recebeu 10.</text>
+    <text x="450" y="585" text-anchor="middle" fill="#0f172a" font-size="13" font-weight="bold">Novo L2 = 10 + 1 = <tspan fill="#16a34a" font-size="15">11</tspan></text>
+  </g>
+
+</svg>

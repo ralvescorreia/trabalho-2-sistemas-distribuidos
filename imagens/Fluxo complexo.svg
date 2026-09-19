@@ -1,0 +1,106 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 760" width="100%" height="100%" style="background:#0f172a; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  <defs>
+    <!-- Marcadores de Seta -->
+    <marker id="arrow-blue" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#38bdf8"/>
+    </marker>
+    <marker id="arrow-green" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#4ade80"/>
+    </marker>
+    <marker id="arrow-purple" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#c084fc"/>
+    </marker>
+    <!-- Filtro de Sombra -->
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="115%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000000" flood-opacity="0.4"/>
+    </filter>
+  </defs>
+
+  <!-- Título do Diagrama -->
+  <text x="480" y="45" text-anchor="middle" fill="#f8fafc" font-size="22" font-weight="bold" letter-spacing="0.5">Fluxo de Comunicação e Causalidade de Lamport</text>
+  <text x="480" y="70" text-anchor="middle" fill="#94a3b8" font-size="13">Troca de mensagens via Servidor Central e salto lógico de relógio (max + 1)</text>
+
+  <!-- Linhas de Linha do Tempo dos Processos -->
+  <line x1="160" y1="140" x2="160" y2="700" stroke="#334155" stroke-width="3" stroke-dasharray="4 4"/>
+  <line x1="480" y1="140" x2="480" y2="700" stroke="#334155" stroke-width="3" stroke-dasharray="4 4"/>
+  <line x1="800" y1="140" x2="800" y2="700" stroke="#334155" stroke-width="3" stroke-dasharray="4 4"/>
+
+  <!-- Cabeçalhos dos Nós -->
+  <!-- Processo P1 -->
+  <g filter="url(#shadow)">
+    <rect x="70" y="95" width="180" height="50" rx="8" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/>
+    <text x="160" y="120" text-anchor="middle" fill="#38bdf8" font-size="15" font-weight="bold">PROCESSO P1</text>
+    <text x="160" y="137" text-anchor="middle" fill="#94a3b8" font-size="11">Estado Inicial: L1 = 0</text>
+  </g>
+
+  <!-- Servidor Central -->
+  <g filter="url(#shadow)">
+    <rect x="375" y="95" width="210" height="50" rx="8" fill="#1e293b" stroke="#f59e0b" stroke-width="2"/>
+    <text x="480" y="120" text-anchor="middle" fill="#fbbf24" font-size="14" font-weight="bold">SERVIDOR CENTRAL</text>
+    <text x="480" y="137" text-anchor="middle" fill="#94a3b8" font-size="11">Roteador WebSocket (server.py)</text>
+  </g>
+
+  <!-- Processo P2 -->
+  <g filter="url(#shadow)">
+    <rect x="710" y="95" width="180" height="50" rx="8" fill="#1e293b" stroke="#34d399" stroke-width="2"/>
+    <text x="800" y="120" text-anchor="middle" fill="#34d399" font-size="15" font-weight="bold">PROCESSO P2</text>
+    <text x="800" y="137" text-anchor="middle" fill="#94a3b8" font-size="11">Estado Inicial: L2 = 0</text>
+  </g>
+
+  <!-- ETAPA 1: P1 executa evento interno -->
+  <circle cx="160" cy="180" r="8" fill="#38bdf8"/>
+  <rect x="30" y="200" width="260" height="42" rx="6" fill="#1e293b" stroke="#475569" stroke-width="1"/>
+  <text x="40" y="218" fill="#f8fafc" font-size="11" font-weight="bold">1. Evento Interno (EXEC)</text>
+  <text x="40" y="233" fill="#38bdf8" font-size="11">Regra 1: L1 = L1 + 1 → [L1 = 1]</text>
+
+  <!-- ETAPA 2: P1 prepara e envia mensagem para P2 -->
+  <circle cx="160" cy="270" r="8" fill="#38bdf8"/>
+  <rect x="30" y="290" width="260" height="56" rx="6" fill="#1e293b" stroke="#475569" stroke-width="1"/>
+  <text x="40" y="308" fill="#f8fafc" font-size="11" font-weight="bold">2. Prepara Envio (SEND)</text>
+  <text x="40" y="323" fill="#38bdf8" font-size="11">Regra 1: L1 = L1 + 1 → [L1 = 2]</text>
+  <text x="40" y="338" fill="#94a3b8" font-size="10">Regra 2: Carimbo no payload (t = 2)</text>
+
+  <!-- Seta de P1 para o Servidor -->
+  <path d="M 160 270 Q 320 280 470 340" fill="none" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrow-blue)"/>
+  <rect x="235" y="295" width="175" height="22" rx="4" fill="#0f172a" stroke="#38bdf8" stroke-width="0.8"/>
+  <text x="322" y="310" text-anchor="middle" fill="#7dd3fc" font-size="10">{origem: P1, dest: P2, t: 2}</text>
+
+  <!-- ETAPA 3: Servidor repassa a mensagem -->
+  <circle cx="480" cy="350" r="7" fill="#fbbf24"/>
+  <rect x="385" y="365" width="190" height="42" rx="6" fill="#1e293b" stroke="#f59e0b" stroke-width="1"/>
+  <text x="480" y="383" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="bold">3. Roteamento WebSocket</text>
+  <text x="480" y="398" text-anchor="middle" fill="#cbd5e1" font-size="10">Sem alterar o relógio (transparente)</text>
+
+  <!-- Seta do Servidor para P2 -->
+  <path d="M 480 350 Q 640 360 790 420" fill="none" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrow-blue)"/>
+  <rect x="575" y="375" width="175" height="22" rx="4" fill="#0f172a" stroke="#38bdf8" stroke-width="0.8"/>
+  <text x="662" y="390" text-anchor="middle" fill="#7dd3fc" font-size="10">{origem: P1, dest: P2, t: 2}</text>
+
+  <!-- ETAPA 4: P2 recebe mensagem e sincroniza relógio -->
+  <circle cx="800" cy="430" r="8" fill="#34d399"/>
+  <rect x="670" y="450" width="260" height="56" rx="6" fill="#1e293b" stroke="#475569" stroke-width="1"/>
+  <text x="680" y="468" fill="#f8fafc" font-size="11" font-weight="bold">4. Recebimento (RECEIVE)</text>
+  <text x="680" y="483" fill="#34d399" font-size="11">Regra 3: max(L2, t_msg) + 1</text>
+  <text x="680" y="498" fill="#86efac" font-size="10">L2 = max(0, 2) + 1 → [L2 = 3]</text>
+
+  <!-- CENÁRIO DE SALTO TEMPORAL (P1 avança sozinho) -->
+  <!-- P1 avança para 100 -->
+  <circle cx="160" cy="510" r="8" fill="#c084fc"/>
+  <rect x="30" y="530" width="260" height="56" rx="6" fill="#1e293b" stroke="#c084fc" stroke-width="1"/>
+  <text x="40" y="548" fill="#f8fafc" font-size="11" font-weight="bold">5. Rajada Local em P1</text>
+  <text x="40" y="563" fill="#c084fc" font-size="11">Troca mensagens e eventos com P3...</text>
+  <text x="40" y="578" fill="#e9d5ff" font-size="10">L1 avança isoladamente até [L1 = 100]</text>
+
+  <!-- P1 envia com t=101 -->
+  <circle cx="160" cy="610" r="8" fill="#c084fc"/>
+  <path d="M 160 610 L 480 640 L 790 670" fill="none" stroke="#c084fc" stroke-width="2" stroke-dasharray="5 5" marker-end="url(#arrow-purple)"/>
+  <rect x="400" y="618" width="160" height="22" rx="4" fill="#0f172a" stroke="#c084fc" stroke-width="0.8"/>
+  <text x="480" y="633" text-anchor="middle" fill="#e9d5ff" font-size="10">Msg com carimbo (t = 101)</text>
+
+  <!-- ETAPA 6: P2 dá o salto de relógio -->
+  <circle cx="800" cy="675" r="9" fill="#f43f5e"/>
+  <rect x="650" y="620" width="290" height="66" rx="6" fill="#1e293b" stroke="#f43f5e" stroke-width="1.5"/>
+  <text x="660" y="638" fill="#fb7185" font-size="11" font-weight="bold">6. Salto Lógico de Relógio em P2!</text>
+  <text x="660" y="653" fill="#f8fafc" font-size="10">P2 estava parado em L2 = 3</text>
+  <text x="660" y="668" fill="#f8fafc" font-size="11">L2 = max(3, 101) + 1 → <tspan fill="#4ade80" font-weight="bold">[L2 = 102]</tspan></text>
+</svg>
