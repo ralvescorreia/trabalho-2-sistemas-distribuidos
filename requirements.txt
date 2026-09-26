@@ -1,0 +1,5 @@
+trabalho 2 sistemas distribuidos/
+├── requirements.txt      # Ficheiro de dependências
+├── server.py            # Servidor central (Roteador e Ordenação Total)
+├── processo.py          # Implementação do nó distribuído (Lamport)
+└── README.md            # Manual de instruções e execução

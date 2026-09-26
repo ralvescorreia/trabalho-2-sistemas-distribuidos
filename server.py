@@ -2,140 +2,161 @@ import asyncio
 import websockets
 import json
 import re
+from rich.console import Console
+from rich.table import Table
+from rich.panel import Panel
+from rich.columns import Columns
 
-# Dicionários e listas para armazenar o estado global
+console = Console()
+
 clientes_conectados = {}
 todos_os_eventos = []
 processos_finalizados = set()
 TOTAL_PROCESSOS = 3
 
 def extrair_participante(tipo, detalhes):
-    """
-    Função auxiliar para extrair o nome do outro processo (P1, P2, P3)
-    a partir do texto de detalhes do log original.
-    Usa Expressões Regulares (Regex) para encontrar o padrão 'P' seguido de número.
-    """
     if tipo == "EXEC":
         return ""
-    
-    # Procura por P1, P2 ou P3 no texto dos detalhes
     match = re.search(r'P[1-3]', detalhes)
     if match:
-        return match.group(0) # Retorna o texto encontrado (ex: "P3")
+        return match.group(0)
     return "?"
 
 def exibir_listagem_por_processo():
-    """
-    Imprime os logs agrupados por processo, mantendo a ordem local,
-    e incluindo quem enviou ou recebeu a mensagem.
-    """
-    print("\n" + "="*80)
-    print("VISÃO LOCAL: LISTAGEM SEQUENCIAL POR PROCESSO (COM ORIGEM/DESTINO)")
-    print("="*80)
+    console.print("\n[bold cyan]" + "="*80 + "[/bold cyan]")
+    console.print("[bold white]VISÃO LOCAL: LISTAGEM SEQUENCIAL POR PROCESSO (COM ORIGEM/DESTINO)[/bold white]")
+    console.print("[bold cyan]" + "="*80 + "[/bold cyan]")
     
     ids_processos = ["P1", "P2", "P3"]
     
     for pid in ids_processos:
-        # Filtra e ordena os eventos deste processo pelo timestamp local
         eventos_do_processo = [e for e in todos_os_eventos if e["processo_id"] == pid]
         eventos_ordenados_locais = sorted(eventos_do_processo, key=lambda item: item["timestamp"])
         
         if eventos_ordenados_locais:
-            print(f"\n--- Histórico de {pid} ---")
+            console.print(f"\n[bold underline]--- Histórico de {pid} ---[/bold underline]")
             for e in eventos_ordenados_locais:
                 tipo = e['tipo']
                 timestamp = e['timestamp']
                 detalhes_originais = e['detalhes']
                 
-                # Formatação condicional baseada no tipo de evento
                 if tipo == "SEND":
                     destino = extrair_participante(tipo, detalhes_originais)
-                    print(f"{pid} send para {destino} relógio lógico {timestamp}")
-                
+                    console.print(f"{pid} [cyan]send[/cyan] para {destino} relógio lógico [bold magenta]{timestamp}[/bold magenta]")
                 elif tipo == "RECEIVE":
                     origem = extrair_participante(tipo, detalhes_originais)
-                    print(f"{pid} receive de {origem} relógio lógico {timestamp}")
-                
-                else: # EXEC
-                    print(f"{pid} exec relógio lógico {timestamp}")
-        else:
-            print(f"\n--- {pid} não registrou eventos ---")
+                    console.print(f"{pid} [green]receive[/green] de {origem} relógio lógico [bold magenta]{timestamp}[/bold magenta]")
+                else: 
+                    console.print(f"{pid} [yellow]exec[/yellow] relógio lógico [bold magenta]{timestamp}[/bold magenta]")
 
-    print("\n" + "="*80 + "\n")
-
+def exibir_resumo_final():
+    """Calcula e exibe o relógio lógico final (máximo) de cada processo."""
+    console.print("\n[bold white]ESTADO FINAL DOS RELÓGIOS LÓGICOS[/bold white]")
+    
+    paineis = []
+    for pid in ["P1", "P2", "P3"]:
+        # Filtra os eventos apenas deste processo e pega o maior timestamp
+        eventos_pid = [e["timestamp"] for e in todos_os_eventos if e["processo_id"] == pid]
+        relogio_final = max(eventos_pid) if eventos_pid else 0
+        
+        # Cria um mini painel para cada processo
+        painel = Panel(
+            f"[bold magenta]{relogio_final:^10}[/bold magenta]", 
+            title=f"[bold cyan]{pid}[/bold cyan]", 
+            expand=False,
+            border_style="cyan"
+        )
+        paineis.append(painel)
+        
+    # Exibe os painéis lado a lado
+    console.print(Columns(paineis))
+    console.print()
 
 def exibir_lista_unificada():
-    """
-    Aplica a ordenação total (Requisito 3) e imprime a lista global formatada.
-    """
-    print("="*80)
-    print("VISÃO GLOBAL: LISTA UNIFICADA (ORDENAÇÃO TOTAL DE LAMPORT)")
-    print("Critério: Menor Timestamp -> Desempate por ID do Processo")
-    print("="*80)
+    tabela = Table(
+        title="\nVISÃO GLOBAL: LISTA UNIFICADA (ORDENAÇÃO TOTAL DE LAMPORT)\nCritério: Menor Timestamp -> Desempate por ID do Processo",
+        show_header=True, 
+        header_style="bold white",
+        title_style="bold magenta"
+    )
     
-    # Ordena: 1º por timestamp, 2º por ID do processo (P1 < P2 < P3)
+    tabela.add_column("Ordem", style="dim", width=6, justify="center")
+    tabela.add_column("Processo", justify="center", style="bold white")
+    tabela.add_column("Evento", justify="center")
+    tabela.add_column("Relógio Lógico", justify="center", style="bold magenta")
+    tabela.add_column("Detalhes")
+
     eventos_ordenados = sorted(
         todos_os_eventos, 
         key=lambda item: (item["timestamp"], item["processo_id"])
     )
     
-    for e in eventos_ordenados:
-        # Usa a formatação completa e detalhada exigida no enunciado
-        print(f"[Processo {e['processo_id']}] Evento: {e['tipo']} | Relógio Lógico: {e['timestamp']} | Detalhes: {e['detalhes']}")
-    print("="*80 + "\n")
+    for i, e in enumerate(eventos_ordenados, 1):
+        cor_evento = "cyan" if e['tipo'] == "SEND" else "green" if e['tipo'] == "RECEIVE" else "yellow"
+        
+        tabela.add_row(
+            str(i),
+            e['processo_id'],
+            f"[{cor_evento}]{e['tipo']}[/{cor_evento}]",
+            str(e['timestamp']),
+            e['detalhes']
+        )
+        
+    console.print(tabela)
+    console.print("[bold cyan]" + "="*80 + "[/bold cyan]\n")
 
 
 async def roteador(websocket):
-    # Fase de handshake: recebe o ID do processo ao conectar
     try:
         id_processo = await websocket.recv()
     except websockets.exceptions.ConnectionClosed:
         return
 
     clientes_conectados[id_processo] = websocket
-    print(f"[Servidor] Processo {id_processo} conectado.")
+    console.print(f"[bold green][Servidor][/bold green] Processo {id_processo} conectado. ({len(clientes_conectados)}/{TOTAL_PROCESSOS})")
+
+    if len(clientes_conectados) == TOTAL_PROCESSOS:
+        console.print("[bold yellow][Servidor] Todos os processos conectados! Disparando sinal de INÍCIO...[/bold yellow]")
+        for cliente_ws in clientes_conectados.values():
+            await cliente_ws.send(json.dumps({"tipo_pacote": "INICIAR"}))
 
     try:
         async for mensagem in websocket:
             dados = json.loads(mensagem)
             tipo_pacote = dados.get("tipo_pacote")
             
-            # Processa pacote de finalização (coleta de logs)
             if tipo_pacote == "FINALIZADO":
                 eventos_recebidos = dados.get("eventos", [])
                 todos_os_eventos.extend(eventos_recebidos)
                 processos_finalizados.add(id_processo)
-                print(f"[Servidor] Relatório recebido de {id_processo}. ({len(processos_finalizados)}/{TOTAL_PROCESSOS})")
+                console.print(f"[bold green][Servidor][/bold green] Relatório final recebido de {id_processo}. ({len(processos_finalizados)}/{TOTAL_PROCESSOS})")
                 
-                # Quando todos terminarem, exibe os resultados
                 if len(processos_finalizados) >= TOTAL_PROCESSOS:
-                    exibir_listagem_por_processo() # Visão local corrigida
-                    exibir_lista_unificada()      # Visão global (Req 3)
+                    exibir_listagem_por_processo()
+                    
+                    # Chama a nova função do estado final ANTES da tabela global
+                    exibir_resumo_final()
+                    
+                    exibir_lista_unificada()
             
-            # Processa roteamento de mensagens entre processos
             else:
                 destino = dados.get("destino")
                 if destino in clientes_conectados:
                     await clientes_conectados[destino].send(json.dumps(dados))
                 else:
-                    print(f"[Servidor] Destino {destino} indisponível (tentativa de {id_processo}).")
+                    console.print(f"[bold red][Servidor] Destino {destino} indisponível.[/bold red]")
                 
     except websockets.exceptions.ConnectionClosed:
         pass
     finally:
-        # Cleanup ao desconectar
         if id_processo in clientes_conectados:
             del clientes_conectados[id_processo]
-        print(f"[Servidor] Processo {id_processo} desconectado.")
-
+        console.print(f"[dim][Servidor] Processo {id_processo} desconectado.[/dim]")
 
 async def main():
-    # Inicia o servidor na porta 8765
     async with websockets.serve(roteador, "localhost", 8765):
-        print("[Servidor] Rodando na porta 8765. Aguardando processos...")
-        await asyncio.Future() # Roda para sempre
+        console.print("[bold cyan][Servidor] Rodando na porta 8765. Aguardando processos...[/bold cyan]")
+        await asyncio.Future()
 
 if __name__ == "__main__":
-    # Import necessário para a função extrair_participante
-    import re
     asyncio.run(main())
